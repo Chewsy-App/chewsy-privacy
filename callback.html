@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+  <title>Chewsy OAuth Callback — Debug</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #141a26;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #FF8C42;
+      --good: #4ade80;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+    h1 {
+      font-size: 28px;
+      margin: 0 0 4px;
+      color: var(--accent);
+      letter-spacing: 0.2px;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 32px 0 12px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    p.sub { margin: 0 0 24px; color: var(--muted); font-size: 16px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .url {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 17px;
+      word-break: break-all;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 17px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      width: 40%;
+      color: var(--muted);
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 16px;
+    }
+    td {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      word-break: break-all;
+      color: var(--text);
+    }
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 12px 0;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .pill.good { background: rgba(74, 222, 128, 0.15); color: var(--good); }
+    .pill.warn { background: rgba(251, 191, 36, 0.15); color: var(--warn); }
+    .pill.bad  { background: rgba(248, 113, 113, 0.15); color: var(--bad); }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    footer {
+      margin-top: 40px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>OAuth Callback — Debug</h1>
+    <p class="sub">This page shows exactly what URL the OAuth provider sent. Use it to confirm what shape the redirect takes before wiring it into the app.</p>
+
+    <h2>Full URL <span id="flowPill" class="pill"></span></h2>
+    <div class="panel"><div id="fullUrl" class="url"></div></div>
+
+    <h2>Query parameters <span class="pill" id="queryCountPill"></span></h2>
+    <div class="panel"><div id="queryTable"></div></div>
+
+    <h2>Hash fragment parameters <span class="pill" id="hashCountPill"></span></h2>
+    <div class="panel"><div id="hashTable"></div></div>
+
+    <h2>Other fields</h2>
+    <div class="panel">
+      <table>
+        <tr><th>protocol</th><td id="protocol"></td></tr>
+        <tr><th>host</th><td id="host"></td></tr>
+        <tr><th>pathname</th><td id="pathname"></td></tr>
+        <tr><th>search</th><td id="search"></td></tr>
+        <tr><th>hash</th><td id="hash"></td></tr>
+      </table>
+    </div>
+
+    <div class="actions">
+      <button id="copyBtn" type="button">Copy full URL</button>
+      <a id="reopenLink" href="chewsy://auth/callback" style="text-decoration: none;">
+        <button class="secondary" type="button">Try opening chewsy://</button>
+      </a>
+    </div>
+
+    <footer>
+      Hosted as a debug interceptor. Remove this URL from the OAuth allowlist once the redirect shape is confirmed.
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var url = window.location.href;
+      document.getElementById('fullUrl').textContent = url;
+
+      document.getElementById('protocol').textContent = window.location.protocol || '(empty)';
+      document.getElementById('host').textContent     = window.location.host     || '(empty)';
+      document.getElementById('pathname').textContent = window.location.pathname || '(empty)';
+      document.getElementById('search').textContent   = window.location.search   || '(empty)';
+      document.getElementById('hash').textContent     = window.location.hash     || '(empty)';
+
+      function escapeHtml(s) {
+        return String(s).replace(/[<>&"]/g, function (c) {
+          return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c];
+        });
+      }
+
+      function renderParams(targetId, params, countPillId) {
+        var entries = [];
+        params.forEach(function (value, key) {
+          entries.push([key, value]);
+        });
+
+        var pill = document.getElementById(countPillId);
+        pill.textContent = entries.length + (entries.length === 1 ? ' field' : ' fields');
+        pill.className = 'pill ' + (entries.length === 0 ? 'warn' : 'good');
+
+        var target = document.getElementById(targetId);
+        if (entries.length === 0) {
+          target.innerHTML = '<div class="empty">(none)</div>';
+          return;
+        }
+        var html = '<table>';
+        entries.forEach(function (row) {
+          html += '<tr><th>' + escapeHtml(row[0]) + '</th><td>' + escapeHtml(row[1]) + '</td></tr>';
+        });
+        html += '</table>';
+        target.innerHTML = html;
+      }
+
+      // Query string ("?code=…&state=…")
+      var queryParams = new URLSearchParams(window.location.search);
+      renderParams('queryTable', queryParams, 'queryCountPill');
+
+      // Hash fragment ("#access_token=…&refresh_token=…")
+      // Strip the leading "#" before handing to URLSearchParams.
+      var rawHash = window.location.hash.replace(/^#/, '');
+      var hashParams = new URLSearchParams(rawHash);
+      renderParams('hashTable', hashParams, 'hashCountPill');
+
+      // Detect the flow shape for the badge next to the URL header.
+      var flowPill = document.getElementById('flowPill');
+      if (hashParams.has('access_token')) {
+        flowPill.textContent = 'implicit flow (tokens in fragment)';
+        flowPill.className = 'pill good';
+      } else if (queryParams.has('code')) {
+        flowPill.textContent = 'PKCE / code flow';
+        flowPill.className = 'pill good';
+      } else if (queryParams.has('error') || hashParams.has('error')) {
+        flowPill.textContent = 'OAuth error returned';
+        flowPill.className = 'pill bad';
+      } else {
+        flowPill.textContent = 'no OAuth fields detected';
+        flowPill.className = 'pill warn';
+      }
+
+      // Re-open chewsy:// with whatever fragment/query the OAuth provider sent,
+      // so you can confirm the deep-link handler sees the same URL.
+      var reopenLink = document.getElementById('reopenLink');
+      var hashAndQuery = window.location.search + window.location.hash;
+      reopenLink.setAttribute('href', 'chewsy://auth/callback' + hashAndQuery);
+
+      // Copy-to-clipboard.
+      document.getElementById('copyBtn').addEventListener('click', function () {
+        var t = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t).then(
+            function () { alert('Copied!'); },
+            function () { window.prompt('Copy this URL:', t); }
+          );
+        } else {
+          window.prompt('Copy this URL:', t);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
