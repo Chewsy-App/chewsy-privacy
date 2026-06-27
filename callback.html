@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-  <title>Chewsy OAuth Callback — Debug</title>
+  <title>Upikd OAuth Callback — Debug</title>
   <style>
     :root {
       --bg: #0b0f17;
       --panel: #141a26;
       --text: #f1f5f9;
       --muted: #94a3b8;
-      --accent: #FF8C42;
+      --accent: #E8192C;
       --good: #4ade80;
       --warn: #fbbf24;
       --bad: #f87171;
@@ -156,8 +156,8 @@
 
     <div class="actions">
       <button id="copyBtn" type="button">Copy full URL</button>
-      <a id="reopenLink" href="chewsy://auth/callback" style="text-decoration: none;">
-        <button class="secondary" type="button">Try opening chewsy://</button>
+      <a id="reopenLink" href="upikd://auth/callback" style="text-decoration: none;">
+        <button class="secondary" type="button">Try opening upikd://</button>
       </a>
     </div>
 
@@ -232,11 +232,11 @@
         flowPill.className = 'pill warn';
       }
 
-      // Re-open chewsy:// with whatever fragment/query the OAuth provider sent,
+      // Re-open upikd:// with whatever fragment/query the OAuth provider sent,
       // so you can confirm the deep-link handler sees the same URL.
       var reopenLink = document.getElementById('reopenLink');
       var hashAndQuery = window.location.search + window.location.hash;
-      reopenLink.setAttribute('href', 'chewsy://auth/callback' + hashAndQuery);
+      reopenLink.setAttribute('href', 'upikd://auth/callback' + hashAndQuery);
 
       // Copy-to-clipboard.
       document.getElementById('copyBtn').addEventListener('click', function () {
